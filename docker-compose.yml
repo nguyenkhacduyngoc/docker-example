@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+    workspace: 
+        container_name: project_application
+        restart: always
+        build:
+            context: .
+            dockerfile: ./docker/workspace/build/Dockerfile
+        volumes:
+            - ${BACKEND_PATH}:/var/www/project/backend
+        tty: true
+    php-fpm:
+        container_name: project_php-fpm
+        restart: always
+        build:
+            context: .
+            dockerfile: ./docker/php-fpm/build/Dockerfile
+        volumes:
+            - ${BACKEND_PATH}:/var/www/project/backend
+        expose:
+            - "9000"
+        links:
+            - application
+    nginx:
+        container_name: project_nginx
+        build:
+            context: .
+            dockerfile: ./docker/nginx/build/Dockerfile
+        volumes:
+            - ${BACKEND_PATH}:/var/www/project/backend
+            - ${LOG_NGINX_PATH}:/var/log/nginx
+            - ${NGINX_SITE_CONFIG_PATH}:/etc/nginx/conf.d
+            - ${NGINX_MODULES_PATH}:/etc/nginx/modules
+        ports:
+            - "80:80"
+        links:
+            - php-fpm
+    mysql:
+        container_name: project_mysql
+        restart: always
+        image: mysql
+        volumes:
+            - ${MYSQL_DATA_PATH}:/var/lib/mysql
+            - ${LOG_MYSQL_PATH}:/var/log/mysql
+        expose:
+            - "3306"
+        environment:
+            MYSQL_DATABASE: project
+            MYSQL_USER: root
+            MYSQL_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: root
+    redis:
+        container_name: project_redis
+        restart: always
+        image: redis
+        expose:
+            - "6379"
+
+  
+  
