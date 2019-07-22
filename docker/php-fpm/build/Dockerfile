@@ -37,11 +37,19 @@ RUN apt-get update && apt-get install -y\
     # Remove depedency log of apt-get update
     && rm -r /var/lib/apt/lists/*
 
-# configure gd library for php- extension for read write image
+RUN apt-get update && apt-get install -y pkg-config patch
+ADD https://git.archlinux.org/svntogit/packages.git/plain/trunk/freetype.patch?h=packages/php /tmp/freetype.patch
+RUN docker-php-source extract; \
+  cd /usr/src/php; \
+  patch -p1 -i /tmp/freetype.patch; \
+  rm /tmp/freetype.patch
+
+# configure gd library for php-extension for read write image
 RUN docker-php-ext-configure gd \
-    --enable-gd-native-ttf \
-    --with-jpeg-dir=/usr/lib \
-    --with-freetype-dir=/usr/include/freetype2
+    --with-gd \
+    --with-jpeg-dir=/usr/include/ \
+    --with-freetype-dir
+    # --enable-gd-native-ttf
 
 # configure intl for php - package for unicode and international language - go with libicu
 RUN docker-php-ext-configure intl

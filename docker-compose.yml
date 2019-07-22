@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-    workspace: 
+    workspace:
         container_name: ngoc_application
         restart: always
         build:
@@ -24,6 +24,7 @@ services:
             - workspace
     nginx:
         container_name: ngoc_nginx
+        restart: always
         build:
             context: .
             dockerfile: ./docker/nginx/build/Dockerfile
@@ -56,6 +57,3 @@ services:
         image: redis
         expose:
             - "6379"
-
-  
-  
